@@ -91,7 +91,9 @@ def main() -> None:
         )
     production = {
         "APP_NAME": "装修预算与增项管家",
-        "APP_ENV": "production",
+        # veFaaS injects its own APP_ENV value at runtime, so use a
+        # project-scoped variable that takes precedence in Settings.
+        "ZHUZHANG_APP_ENV": "production",
         "SEED_DEMO_ENABLED": "false",
         "DATABASE_URL": "sqlite:////tmp/zhuzhang/app.db",
         "UPLOAD_DIR": "/tmp/zhuzhang/uploads",

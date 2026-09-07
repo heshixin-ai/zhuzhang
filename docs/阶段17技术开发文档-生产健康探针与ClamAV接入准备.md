@@ -25,7 +25,7 @@
 基础配置如下。认证、SMTP、对象存储等凭据仍需通过部署 Secret 提供。
 
 ```env
-APP_ENV=production
+ZHUZHANG_APP_ENV=production
 SEED_DEMO_ENABLED=false
 UPLOADS_ENABLED=false
 UPLOAD_MALWARE_SCAN_MODE=disabled

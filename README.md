@@ -2,11 +2,15 @@
 
 筑账是一个面向家庭装修的预算、报价、增减项、验收和付款记录工具。项目用一条可追溯的时间线连起报价比较、合同基线、变更确认、证据和正式档案导出。
 
+**在线演示：** [打开筑账 Portfolio 演示](https://scap9cp9ceedd3esm3fcs.apigateway-cn-beijing.volceapi.com/)
+
 当前实现基线见 [装修预算与增项管家 PRD V1.1](renovation-budget-change-manager-prd-v1.1.md)。项目代码使用 [MIT License](LICENSE)，ClamAV 等第三方组件的声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ## 开源与演示状态
 
-本仓库提供可本地运行的完整代码，不承诺长期可用的公共演示服务。曾用于联调的云端环境只作为历史验收记录，公开文档已移除入口、资源 ID、桶名和 IAM 标识。
+当前提供用于作品集与面试展示的公共演示环境。演示环境按成本与安全边界运行：关闭新文件上传和 AI 解析，保留邮箱验证码登录、预算、增减项、验收、付款、风险、协作与档案等主要流程。新访客使用自己的邮箱登录后进入独立空账号，不会看到维护者数据。
+
+公共地址可能因维护或资源调整暂停，不承诺长期可用；正式使用建议自行部署。
 
 面试演示推荐关闭新文件上传。这不需要部署 ClamAV，预算、增减项、验收、付款记录、风险和档案等主要流程仍可演示。如果公网环境要接收任意用户文件，应启用完整模式并接入 ClamAV。
 
@@ -121,7 +125,7 @@ npm run dev
 公网演示不需要接收文件时，在部署 Secret 或环境变量中明确关闭上传。
 
 ```env
-APP_ENV=production
+ZHUZHANG_APP_ENV=production
 SEED_DEMO_ENABLED=false
 UPLOADS_ENABLED=false
 UPLOAD_MALWARE_SCAN_MODE=disabled
@@ -136,6 +140,8 @@ SMTP_PASSWORD=<部署Secret>
 SMTP_FROM_EMAIL=noreply@example.com
 SMTP_USE_SSL=true
 ```
+
+从旧版本升级时，如果数据库仍有仅由 `demo-owner` 持有的项目，迁移不会根据“唯一注册用户”等条件猜测数据归属。请先确认真正的所有者已完成一次登录，再把 `ZHUZHANG_DEMO_OWNER_ADOPTION_EMAIL` 作为一次性的进程或容器环境变量注入后执行迁移；不要把它长期写入 `.env`。例如 macOS/Linux 可执行 `ZHUZHANG_DEMO_OWNER_ADOPTION_EMAIL=owner@example.com alembic upgrade head`，部署平台则临时添加同名环境变量并在迁移成功后移除。目标账号不存在、未激活或匹配不唯一时，迁移会在修改数据前停止。全新数据库和已具备真实所有者的项目不需要设置。
 
 关闭后，报价导入和证据上传接口在读取或存储文件前返回 HTTP 503 与 `FILE_UPLOADS_DISABLED`。`GET /api/v1/session` 通过 `capabilities.uploads_enabled` 告诉前端隐藏或禁用上传操作。就绪检查将扫描器标为 `not_applicable`，不会因为没有 ClamAV 而降级。
 

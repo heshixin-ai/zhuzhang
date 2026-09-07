@@ -31,6 +31,13 @@ def test_production_runtime_safety_accepts_disabled_uploads_without_clamav():
     ).validate_runtime_safety()
 
 
+def test_project_environment_overrides_platform_app_env(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "volcengine_cnbeijingprod_new")
+    monkeypatch.setenv("ZHUZHANG_APP_ENV", "production")
+
+    assert Settings(_env_file=None).app_env == "production"
+
+
 @pytest.mark.parametrize(
     ("override", "message"),
     [
