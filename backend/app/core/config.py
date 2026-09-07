@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -47,7 +47,13 @@ def sqlite_database_path_from_url(value: str) -> Path | None:
 
 class Settings(BaseSettings):
     app_name: str = "装修预算与增项管家"
-    app_env: Literal["development", "test", "production"] = "production"
+    # veFaaS reserves APP_ENV for its own deployment-stage identifier. Prefer a
+    # project-scoped name there while keeping APP_ENV as a local compatibility
+    # fallback and ``app_env`` for direct Settings construction in tests/tools.
+    app_env: Literal["development", "test", "production"] = Field(
+        default="production",
+        validation_alias=AliasChoices("ZHUZHANG_APP_ENV", "APP_ENV", "app_env"),
+    )
     seed_demo_enabled: bool = False
     database_url: str = "sqlite:///./data/app.db"
     upload_dir: Path = Path("./data/uploads")
@@ -207,7 +213,7 @@ class Settings(BaseSettings):
         if not math.isfinite(self.clamav_readiness_timeout_seconds) or self.clamav_readiness_timeout_seconds <= 0:
             errors.append("CLAMAV_READINESS_TIMEOUT_SECONDS 必须大于 0")
         if self.seed_demo_enabled and self.app_env != "development":
-            errors.append("SEED_DEMO_ENABLED 只能在 APP_ENV=development 时启用")
+            errors.append("SEED_DEMO_ENABLED 只能在 ZHUZHANG_APP_ENV=development 时启用")
         if self.app_env == "production":
             if self.auth_delivery_mode == "development":
                 errors.append("生产环境不能使用 development 验证码投递")

@@ -54,6 +54,8 @@ def test_vefaas_configuration_merges_without_importing_or_replacing_remote_secre
 
     assert len(uploads) == 1
     assert not (module.FULL_MODE_REQUIRED_REMOTE_KEYS & uploads[0].keys())
+    assert uploads[0]["ZHUZHANG_APP_ENV"] == "production"
+    assert "APP_ENV" not in uploads[0]
     assert uploads[0]["ARTIFACT_STORAGE_BUCKET"] == "private-bucket"
     assert uploads[0]["UPLOADS_ENABLED"] == "true"
     assert uploads[0]["UPLOAD_MALWARE_SCAN_MODE"] == "clamav"
@@ -108,6 +110,8 @@ def test_vefaas_portfolio_mode_disables_uploads_scanning_and_ai(tmp_path, monkey
     module.main()
 
     assert len(uploads) == 1
+    assert uploads[0]["ZHUZHANG_APP_ENV"] == "production"
+    assert "APP_ENV" not in uploads[0]
     assert uploads[0]["UPLOADS_ENABLED"] == "false"
     assert uploads[0]["UPLOAD_MALWARE_SCAN_MODE"] == "disabled"
     assert uploads[0]["CLAMAV_HOST"] == ""
